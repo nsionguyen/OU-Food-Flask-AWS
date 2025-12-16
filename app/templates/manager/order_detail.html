@@ -1,0 +1,60 @@
+{% extends 'manager/layout/base.html' %}
+
+{% block content %}
+<div class="container">
+    {%if count >0 %}
+    <h6>Mã đơn hàng: {{order_details[0].order_id}}</h6>
+    <h6>Thời gian đặt hàng: {{order_details[0].order_created_date}}</h6>
+    <h6>Số tiền thanh toán: {{ "{:,.0f}".format(order_details[0].total) }} VND</h6>
+    {%endif%}
+
+    <div class="table-container mt-3">
+        <table class="table table-bordered text-center align-middle">
+            <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã món ăn</th>
+                <th>Tên món ăn</th>
+                <th>Số lượng món ăn</th>
+                <th>Số tiền 1 món</th>
+                <th>Ghi chú</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for i in order_details %}
+                    <tr>
+                        <td>{{i.order_detail_id}}</td>
+                        <td>{{i.cuisine_id}}</td>
+                        <td>{{i.name}}</td>
+                        <td>{{i.quantity}}</td>
+                        <td>{{ "{:,.0f}".format(i.price) }} VND</td>
+                        {%if i.note == None%}
+                            <td>Không có</td>
+                        {%else%}
+                            <td>{{i.note}}</td>
+                        {%endif%}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-3">
+         {%if count > 0 %}
+             {%if order_details[0].status.name == "NEWORDER"%}
+                <button type="button" id="btn_approve" data-order-id={{order_details[0].order_id}} class="btn btn-success me-3 ">Xác nhận đơn</button>
+            {%else%}
+                <button type="button" class="btn btn-success me-3 " disabled>Xác nhận đơn</button>
+            {%endif%}
+            {%if order_details[0].status.name == "PROCESSING"%}
+                <button type="button" id="btn_processed" data-order-id={{order_details[0].order_id}} class="btn btn-primary">Hoàn thành đơn</button>
+            {%else%}
+                <button type="button" class="btn btn-primary me-3" disabled>Hoàn thành đơn</button>
+            {%endif%}
+         {%endif%}
+         <button type="button" id="btn_comeback" class="btn btn-danger">Quay lại</button>
+    </div>
+</div>
+
+
+{%endblock%}

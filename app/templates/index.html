@@ -1,0 +1,140 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<!-- Hero Start -->
+<div class="container-fluid py-5 mb-5 hero-header">
+    <div class="container py-5">
+        <div class="row g-5 align-items-center">
+            <div class="col-md-12 col-lg-7">
+                <h4 class="mb-3 text-secondary">100% Natural Food</h4>
+                <h1 class="mb-5 display-3 text-primary">Foods and Drinks</h1>
+                <div class="position-relative mx-auto">
+                    <form method="get" action="/" class="position-relative mx-auto">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-6">
+                                <input type="text" name="keyword"
+                                       class="form-control border-2 border-secondary py-3 px-4 rounded-pill"
+                                       placeholder="Tìm kiếm theo tên" value="{{ request.args.get('keyword', '') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <select name="type" class="form-select rounded-pill border-2 border-secondary">
+                                    <option value="">Types</option>
+                                    {% for t in types %}
+                                    <option value="{{ t }}" {% if request.args.get('type') == t %}selected{% endif %}>{{ t }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select name="location" class="form-select rounded-pill border-2 border-secondary">
+                                    <option value="">Locations</option>
+                                    {% for l in locations %}
+                                    <option value="{{ l }}" {% if request.args.get('location') == l %}selected{% endif %}>{{ l }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select name="cuisine_type" class="form-select rounded-pill border-2 border-secondary">
+                                    <option value="">Cuisine Types</option>
+                                    {% for ct in cuisine_types %}
+                                    <option value="{{ ct.id }}" {% if request.args.get('cuisine_type') == ct.id|string %}selected{% endif %}> {{ ct.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-12 mt-5">
+                                <button type="submit"
+                                        class="btn btn-primary border-2 border-secondary py-3 px-4 rounded-pill w-100 text-white">
+                                    Tìm kiếm
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-5">
+                <div id="carouselId" class="carousel slide position-relative" data-bs-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="carousel-item rounded">
+                            <img src="https://baothainguyen.vn/file/e7837c027f6ecd14017ffa4e5f2a0e34/052023/quan-com-tam-o-ha-noi-_20230524102142.jpg"
+                                 class="img-fluid w-100 h-100 rounded" alt="Second slide">
+                            <a href="#" class="btn px-4 py-2 text-white rounded">Foods</a>
+                        </div>
+                        <div class="carousel-item active rounded">
+                            <img src="https://res.cloudinary.com/dnwyvuqej/image/upload/v1752339960/download_2_fxoyhj.jpg"
+                                 class="img-fluid w-100 h-100 bg-secondary rounded"
+                                 alt="First slide">
+                            <a href="#" class="btn px-4 py-2 text-white rounded">Fruites</a>
+                        </div>
+                        <div class="carousel-item rounded">
+                            <img src="https://www.bartender.edu.vn/wp-content/uploads/2015/11/tra-sua-truyen-thong.jpg"
+                                 class="img-fluid w-100 h-100 rounded" alt="Second slide">
+                            <a href="#" class="btn px-4 py-2 text-white rounded">Drink</a>
+                        </div>
+
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselId"
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselId"
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Hero End -->
+
+<!-- Restaurants List Start -->
+<div class="container-fluid py-5 bg-light">
+    <div class="container">
+        <h1 class="text-center mb-4">Restaurants</h1>
+        <div class="row g-4">
+            {% for r in restaurants %}
+            <div class="col-md-6 col-lg-4 col-xl-3">
+                <div class="rounded shadow border border-secondary h-100">
+                    <div class="p-4">
+                        <img src="{{ r.image or 'https://via.placeholder.com/400x200?text=Restaurant' }}"
+                             class="img-fluid rounded-top" alt="{{ r.name }}"
+                             style="height: 200px; width: 100%; object-fit: cover;">
+
+                        <h5 class="text-primary mt-3">{{ r.name }}</h5>
+                        <p><strong>Loại hình:</strong> {{ r.type }}</p>
+                        <p><strong>Địa điểm:</strong> {{ r.location }}</p>
+                        <p><strong>Giới thiệu:</strong> {{ r.introduce }}</p>
+                        {% set avg = rating_map.get(r.id) %}
+                        <p>
+                            {% if avg %}
+                                ⭐ {{ avg }}
+                                <span>
+                                    {% for i in range(1, 6) %}
+                                        {% if i <= avg|round(0, 'floor') %}
+                                            <i class="fa fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="fa fa-star text-muted"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                {% else %}
+                                    Chưa có đánh giá
+                            {% endif %}
+                        </p>
+                        <a href="/restaurant/{{ r.id }}" class="btn btn-outline-primary rounded-pill">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<!-- Restaurants List End -->
+
+
+
+
+{% endblock %}

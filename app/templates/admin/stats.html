@@ -1,0 +1,91 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary text-center">Thống kê doanh thu</h2>
+
+    <!-- FORM LỌC -->
+    <form method="get" class="row g-3 align-items-end justify-content-center mb-4">
+        <div class="col-md-3">
+            <label for="restaurant" class="form-label fw-bold">Nhà hàng</label>
+            <select name="restaurant_id" class="form-select">
+                {% for r in restaurants %}
+                    <option value="{{ r.id }}" {% if r.id == selected_restaurant %}selected{% endif %}>{{ r.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-bold">Từ ngày</label>
+            <input type="date" name="from_date" value="{{ from_date }}" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-bold">Đến ngày</label>
+            <input type="date" name="to_date" value="{{ to_date }}" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Lọc</button>
+        </div>
+    </form>
+
+    <div class="mb-4">
+        <p><strong>Tổng doanh thu:</strong> {{ values | sum }} đ</p>
+        <p><strong>Tổng số đơn hàng:</strong> {{ values | length }}</p>
+    </div>
+
+    <!-- BIỂU ĐỒ -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <canvas id="revenueChart" height="120"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ labels | tojson }},
+            datasets: [{
+                label: 'Doanh thu (VNĐ)',
+                data: {{ values | tojson }},
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                borderRadius: 8,
+                barThickness: 30,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let value = context.raw || 0;
+                            return new Intl.NumberFormat('vi-VN', {
+                                style: 'currency',
+                                currency: 'VND'
+                            }).format(value);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('vi-VN') + ' đ';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends 'layout/base.html' %}
+{% block content %}
+<div class="container-fluid fruite py-5">
+    <div class="container py-5">
+        <!-- form tìm kiếm -->
+        <div class="text-center mb-5" style="margin-top: 5%">
+            <h1 class="text-success">Quán: {{ restaurant.name }}</h1>
+            <form method="get" class="row justify-content-center mt-4">
+                <div class="col-md-4">
+                    <input type="text" name="keyword" value="{{ keyword or '' }}"
+                           class="form-control rounded-pill px-4 mb-2 mb-md-0" placeholder="Tìm món ăn theo tên...">
+                </div>
+                <div class="col-md-2">
+                    <select name="food_type" class="form-select rounded-pill mb-2 mb-md-0">
+                        <option value="">-- Loại món ăn --</option>
+                        <option value="APPETIZER" {{
+                        'selected' if food_type=='APPETIZER' }}>Khai vị</option>
+                        <option value="MAIN" {{
+                        'selected' if food_type=='MAIN' }}>Món chính</option>
+                        <option value="DESERT" {{
+                        'selected' if food_type=='DESERT' }}>Tráng miệng</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="beverage_type" class="form-select rounded-pill mb-2 mb-md-0">
+                        <option value="">-- Loại nước --</option>
+                        <option value="SOFTDRINK" {{
+                        'selected' if beverage_type=='SOFTDRINK' }}>Nước ngọt</option>
+                        <option value="DRINKINGWATER" {{
+                        'selected' if beverage_type=='DRINKINGWATER' }}>Nước suối</option>
+                        <option value="COFFEE" {{
+                        'selected' if beverage_type=='COFFEE' }}>Cà phê</option>
+                        <option value="JUICE" {{
+                        'selected' if beverage_type=='JUICE' }}>Nước ép</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary rounded-pill w-100">Tìm kiếm</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Món ăn -->
+        <div class="mt-5 text-start">
+            <h3 class="mb-4 text-success">🍽 Món ăn</h3>
+            <div class="row g-4">
+                {% for c in food_cuisines %}
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="rounded position-relative fruite-item h-100 d-flex flex-column">
+                        <div class="fruite-img">
+                            <img src="{{ c.image or url_for('static', filename='img/default.jpg') }}"
+                                 class="img-fluid w-100 rounded-top" alt="{{ c.name }}"
+                                 style="height: 200px; object-fit: cover;">
+                        </div>
+                        <div class="text-white bg-secondary px-3 py-1 rounded position-absolute"
+                             style="top: 10px; left: 10px;">
+                            {{ c.food_type.value }}
+                        </div>
+                        <div class="p-4 border border-secondary border-top-0 rounded-bottom mt-auto">
+                            <h5 class="fw-bold">{{ c.name }}</h5>
+                            <p class="small text-muted">{{ c.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <p class="text-dark fs-6 fw-bold mb-0">{{ '{:,.0f}'.format(c.price) }} VND</p>
+                                <button href="#" class="btn border border-secondary rounded-pill px-3 text-primary"
+                                        onclick="addToCart({{c.id}}, '{{c.name}}', {{c.price}}, '{{c.image}}', {{c.count}})">
+                                    <i class="fa fa-shopping-bag me-2 text-primary"></i> Thêm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted">Không tìm thấy món ăn nào.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Nước uống -->
+        <div class="mt-5 text-start">
+            <h3 class="mb-4 text-info">🥤 Nước uống</h3>
+            <div class="row g-4">
+                {% for c in beverage_cuisines %}
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="rounded position-relative fruite-item h-100 d-flex flex-column">
+                        <div class="fruite-img">
+                            <img src="{{ c.image or url_for('static', filename='img/default.jpg') }}"
+                                 class="img-fluid w-100 rounded-top" alt="{{ c.name }}"
+                                 style="height: 200px; object-fit: cover;">
+                        </div>
+                        <div class="text-white bg-info px-3 py-1 rounded position-absolute"
+                             style="top: 10px; left: 10px;">
+                            {{ c.beverage_type.value }}
+                        </div>
+                        <div class="p-4 border border-info border-top-0 rounded-bottom mt-auto">
+                            <h5 class="fw-bold">{{ c.name }}</h5>
+                            <p class="small text-muted">{{ c.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <p class="text-dark fs-6 fw-bold mb-0">{{ '{:,.0f}'.format(c.price) }} VND</p>
+                                <button href="#" class="btn border border-info rounded-pill px-3 text-primary"
+                                        onclick="addToCart({{c.id}}, '{{c.name}}', {{c.price}}, '{{c.image}}', {{c.count}})">
+                                    <i class="fa fa-shopping-bag me-2 text-primary"></i> Thêm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted">Không tìm thấy nước uống nào.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Đánh giá -->
+    <h3 class="mb-4 text-warning">⭐ Đánh giá của khách hàng</h3>
+
+    {% if reviews %}
+    <div id="review-list">
+        {% for review in reviews %}
+        <div class="card mb-3 review-item" style="display: {{ loop.index <= 3 and 'block' or 'none' }};">
+            <div class="card-body">
+                <h6 class="mb-1">
+                    <strong>{{ review.user.name }}</strong> – {{ review.date.strftime('%d/%m/%Y %H:%M') }}
+                </h6>
+                <p class="mb-2">{{ review.content }}</p>
+                <div>
+                    {% for i in range(1, 6) %}
+                    {% if i <= review.rate %}
+                    <i class="fa fa-star text-warning"></i>
+                    {% else %}
+                    <i class="fa fa-star" style="color: #ddd;"></i>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if reviews|length > 3 %}
+    <div class="text-center mt-2">
+        <button class="btn btn-outline-primary btn-sm" id="load-more-btn">Xem thêm</button>
+    </div>
+    {% endif %}
+    {% else %}
+    <p class="text-muted">Nhà hàng chưa có đánh giá nào.</p>
+    {% endif %}
+</div>
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+<script src="{{ url_for('static', filename='js/review.js') }}"></script>
+{% endblock %}
